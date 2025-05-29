@@ -9,6 +9,10 @@ from threading import Thread
 import pyfirmata2 as pf
 
 class StepcraftInterface:
+    '''
+    Interface to control the stepcraft CNC with an arduino. 
+    Allows gcode to be started and stopped.
+    '''
     def __init__(self, port=None):
         # connect to arduino
         # None port autodetects arduino
