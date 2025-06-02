@@ -110,6 +110,9 @@ class UC100Controller:
         self.dll.GetStatus.argtypes = [ctypes.POINTER(Stat)]
         self.dll.GetStatus.restype = ctypes.c_int
 
+        self.dll.SpindleOn.argtypes = [ctypes.c_bool]
+        self.dll.SpindleOn.restype = ctypes.c_int
+
         self.connected = False
         self.device_id = None
 
@@ -154,6 +157,11 @@ class UC100Controller:
 
         return status
 
+    def spindle_on(self):
+        result = self.dll.SpindleOn(True)
+        if result != 0:
+            raise RuntimeError(f"SpindleOn failed with error code {result}")
+
     def __del__(self):
         if self.connected:
             self.close_device()
@@ -168,21 +176,28 @@ if __name__=='__main__':
     num_devices = uc.list_devices()
     print(f"Found {num_devices} device(s)")
 
-    # getting device 0 simply returns demo mode. Need to access device 1 to get 
+    # getting device 0 simply returns demo mode. Need to access device 1 to get
     for i in range(num_devices+1):
         info = uc.get_device_info(i)
         print(f"Device {i}: Type={info['type']}, Serial={hex(info['serial'])}")
 
-    uc.open_device(1)  # Or use demo mode with 0
+    uc.open_device(0)  # Or use demo mode with 0
     print("Device opened.")
 
     status = uc.get_status()
     print(f"Idle: {status.Idle}")
     print(f"Estop: {status.Estop}")
-    print(f"SpindleRPM: {status.SpindleRPM}")
+    print(f"SpindleOn: {status.SpindleOn}")
 
 
     # Do other operations...
+    input()
+    print("Turning on Spindle")
+    uc.spindle_on()
+    status = uc.get_status()
+    print(f"Idle: {status.Idle}")
+    print(f"Estop: {status.Estop}")
+    print(f"SpindleOn: {status.SpindleOn}")
     input()
     uc.close_device()
     print("Device closed.")
