@@ -5,7 +5,7 @@ import threading
 import numpy as np
 from matplotlib import pyplot as plt
 
-class waamTestbed(object):
+class SensorSuite(object):
     def __init__(
             self,
             spec_service=None,

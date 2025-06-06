@@ -113,6 +113,34 @@ class UC100Controller:
         self.dll.SpindleOn.argtypes = [ctypes.c_bool]
         self.dll.SpindleOn.restype = ctypes.c_int
 
+        self.dll.AddLinearMoveRel.argtypes = [ctypes.c_int,
+                                              ctypes.c_double,
+                                              ctypes.c_int,
+                                              ctypes.c_double,
+                                              ctypes.c_bool]
+        self.dll.AddLinearMoveRel.restype = ctypes.c_int
+
+        self.dll.AddLinearMove.argtypes = [ctypes.c_double,
+                                           ctypes.c_double,
+                                           ctypes.c_double,
+                                           ctypes.c_double,
+                                           ctypes.c_double,
+                                           ctypes.c_double,
+                                           ctypes.c_double,
+                                           ctypes.c_int]
+        self.dll.AddLinearMove.restype = ctypes.c_int
+
+        self.dll.SetAxisPosition.argtypes = [ctypes.c_double,
+                                             ctypes.c_double,
+                                             ctypes.c_double,
+                                             ctypes.c_double,
+                                             ctypes.c_double,
+                                             ctypes.c_double]
+        self.dll.SetAxisPosition.restype = ctypes.c_int
+
+        self.dll.SetFeedhold.argtypes = [ctypes.c_bool]
+        self.dll.SetFeedhold.restype = ctypes.c_int
+
         self.connected = False
         self.device_id = None
 
@@ -150,17 +178,117 @@ class UC100Controller:
         self.device_id = None
 
     def get_status(self):
-        status = Stat()
-        result = self.dll.GetStatus(ctypes.byref(status))
+        _status = Stat()
+        result = self.dll.GetStatus(ctypes.byref(_status))
         if result != 0:
             raise RuntimeError(f"GetStatus failed with error code {result}")
 
-        return status
+        return _status
 
     def spindle_on(self):
         result = self.dll.SpindleOn(True)
         if result != 0:
             raise RuntimeError(f"SpindleOn failed with error code {result}")
+
+    def linear_move_relative(self,
+                             axis,
+                             step,
+                             step_count,
+                             speed,
+                             direction):
+
+        result = self.dll.AddLinearMoveRel(axis,
+                                           step,
+                                           step_count,
+                                           speed,
+                                           direction)
+        if result != 0:
+            raise RuntimeError(f"AddLinearMoveRel failed with error code {result}")
+
+    def linear_move(self,
+                    x,
+                    y,
+                    z,
+                    feed,
+                    ID,
+                    a=0.0,
+                    b=0.0,
+                    c=0.0):
+        result = self.dll.AddLinearMove(x,
+                                        y,
+                                        z,
+                                        a,
+                                        b,
+                                        c,
+                                        feed,
+                                        ID)
+        if result != 0:
+            raise RuntimeError(f"AddLinearMove failed with error code {result}")
+
+    def set_axis_pos(self,
+                     x_pos,
+                     y_pos,
+                     z_pos,
+                     a_pos=0.0,
+                     b_pos=0.0,
+                     c_pos=0.0):
+        result = self.dll.SetAxisPosition(x_pos,
+                                          y_pos,
+                                          z_pos,
+                                          a_pos,
+                                          b_pos,
+                                          c_pos)
+        if result != 0:
+            raise RuntimeError(f"SetAxisPosition failed with error code {result}")
+
+    def set_feedhold(self,state):
+        result = self.dll.SetFeedhold(state)
+        if result != 0:
+            raise RuntimeError(f"SetFeedhold failed with error code {result}")
+
+    def zero_axes(self):
+        # zeros all axes
+        self.set_axis_pos(0.0,0.0,0.0)
+
+    def init_pathplan(self, plan):
+        '''
+        Function to convert generated pathplan into motion commands. Uses absolute move
+        commands after zeroing at current position.
+
+        plan = [[x, y, z, vel],
+                [x, y, z, vel],
+                 ...
+                [x, y, z, vel]]
+        '''
+        self.zero_axes()
+        mot_id = 0
+        # send to start
+        self.linear_move(plan[0,0],
+                         plan[0,1],
+                         plan[0,2],
+                         plan[0,3],
+                         mot_id)
+
+        # increment motion id
+        mot_id+=1
+
+        input("Press Enter when motion stops")
+
+        # hold motion
+        self.set_feedhold(True)
+
+        # buffer all commands
+        for i in range(1,plan.shape[0]):
+            self.linear_move(plan[i,0],
+                             plan[i,1],
+                             plan[i,2],
+                             plan[i,3],
+                             mot_id)
+            mot_id += 1
+
+    def start_pathplan(self):
+        # undo the feedhold to start motion
+        self.set_feedhold(False)
 
     def __del__(self):
         if self.connected:
