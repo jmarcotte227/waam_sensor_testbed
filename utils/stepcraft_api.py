@@ -410,16 +410,15 @@ class UC100Controller:
                              mot_id)
             mot_id += 1
 
-    def start_pathplan(self):
+    def run_pathplan(self, blocking=True):
         # undo the feedhold to start motion
         self.set_feedhold(False)
 
-    def wait_for_stop(self):
-        # blocks until the positioner goes idle
-        while True:
-            if getattr(self.get_status(), "Idle"):
-                break
-
+        if blocking:
+            while True:
+                if getattr(self.get_status(), "Idle"):
+                    break
+            
     def jog_axis(self, axis, direction):
         result = self.dll.JogOnSpeed(axis, direction, self.jog_speed)
         if result != 0:
@@ -556,8 +555,7 @@ if __name__=='__main__':
     path_plan = np.loadtxt("../path_generation/paths/wall.csv", delimiter = ',')
     uc.init_pathplan(path_plan)
     input("Enter to execute pathplan")
-    uc.start_pathplan()
-    uc.wait_for_stop() # blocks until the machine goes idle
+    uc.run_pathplan()
     uc.close_device()
     print("Device closed.")
 
