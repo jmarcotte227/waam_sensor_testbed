@@ -221,10 +221,12 @@ class UC100Controller:
         self.dll.GetEstopCause.argtypes = [ctypes.POINTER(ctypes.c_int)]
         self.dll.GetEstopCause.restype = ctypes.c_int
 
+        self.dll.SetEstopState.argtypes = []
+        self.dll.SetEstopState.restype = ctypes.c_int
+
         self.connected = False
         self.device_id = None
         self.jog_speed = 1
-
 
     def list_devices(self):
         count = ctypes.c_int()
@@ -477,6 +479,10 @@ class UC100Controller:
         except KeyboardInterrupt:
             print("Jog loop interrupted.")
 
+    def e_stop(self):
+        result = self.dll.SetEstopState()
+        if result != 0:
+            raise RuntimeError(f"SetEstop failed with error code {result}")
 
     def _parse_axis_settings(self, axis):
         axis_opts = self.axis_settings[axis]

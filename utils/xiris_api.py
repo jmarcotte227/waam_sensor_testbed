@@ -58,6 +58,9 @@ class XirisInterface():
                 }
         r = requests.post(self.address+stop_cmd, json=data, timeout=self.timeout)
 
+    def e_stop(self):
+        self.stop_recording()
+
 if __name__=='__main__':
     xiris = XirisInterface()
     xiris.set_filename('Experiment_xxx_3')
