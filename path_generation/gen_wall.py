@@ -1,13 +1,13 @@
 import numpy as np
 
 # geometry parameters
-WALL_LEN =      100 # mm
-LAYER_HEIGHT =  5   # mm
-NUM_LAYERS =    5
+WALL_LEN =      70 # mm
+LAYER_HEIGHT =  4   # mm
+NUM_LAYERS =    2
 
 # velocities
 JUMP_VEL =      100 # mm/s
-WELD_VEL =      10  # mm/s
+WELD_VEL =      3  # mm/s
 
 motion_commands = np.zeros((NUM_LAYERS*2, 4))
 direction = True

@@ -1,3 +1,6 @@
 def estop_all(device_list):
     for device in device_list:
-        device.e_stop()
+        try:
+            device.e_stop()
+        except RuntimeError as e:
+            print(e)

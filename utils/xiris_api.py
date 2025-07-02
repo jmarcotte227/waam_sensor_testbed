@@ -34,7 +34,7 @@ class XirisInterface():
 
     def set_overlay(self, text):
         # sets the file name of the recording
-        set_overlay_cmd = 'rpc/Camera/SetOverlayLabel'
+        set_overlay_cmd = 'rpc/Camera/SetRecordingLabel'
         data = {
                 'camera': self.cam_key,
                 'label':text,
@@ -65,6 +65,7 @@ if __name__=='__main__':
     xiris = XirisInterface()
     xiris.set_filename('Experiment_xxx_3')
     xiris.set_overlay('Experiment_xxx_3')
+    time.sleep(2)
     xiris.start_recording()
     time.sleep(3)
     xiris.stop_recording()

@@ -93,8 +93,6 @@ class SensorSuite(object):
             self.start_spec_cb=True
 
     def clear_all_sensors(self):
-        if self.weld_service:
-            self.clean_weld_record()
         if self.flir_ser:
             self.clean_ir_record()
         if self.mic_service:

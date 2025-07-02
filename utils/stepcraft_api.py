@@ -228,6 +228,7 @@ class UC100Controller:
         self.device_id = None
         self.jog_speed = 1
 
+
     def list_devices(self):
         count = ctypes.c_int()
         result = self.dll.ListDevices(ctypes.byref(count))
@@ -254,6 +255,15 @@ class UC100Controller:
         self.connected = True
         self.device_id = board_id
 
+        # use stop to clear current state
+        # result = self.dll.Stop()
+        # if result != 0:
+        #     if result == 7: 
+        #         cause = ctypes.c_int()
+        #         _ = self.dll.GetEstopCause(ctypes.byref(cause))
+        #         print("Estop Cause: ", cause)
+        #     raise RuntimeError("Stop failed with code {}".format(result))
+
     def load_config(self, config_file):
         # parse config
         if config_file is not None:
@@ -268,7 +278,11 @@ class UC100Controller:
             # set estop pin
             result = self.dll.SetEstopSetting(estop_pin, estop_negate)
             if result != 0:
-                raise RuntimeError("Setting Estop pin failed with code{}".format(result))
+                if result == 7: 
+                    cause = ctypes.c_int()
+                    _ = self.dll.GetEstopCause(ctypes.byref(cause))
+                    print("Estop Cause: ", cause)
+                raise RuntimeError(f"Setting Estop pin failed with code {result}")
 
 
             self.axis_settings = {}
@@ -480,9 +494,9 @@ class UC100Controller:
             print("Jog loop interrupted.")
 
     def e_stop(self):
-        result = self.dll.SetEstopState()
+        result = self.dll.Stop()
         if result != 0:
-            raise RuntimeError(f"SetEstop failed with error code {result}")
+            raise RuntimeError(f"Stop failed with error code {result}")
 
     def _parse_axis_settings(self, axis):
         axis_opts = self.axis_settings[axis]
