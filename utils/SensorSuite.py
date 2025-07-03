@@ -287,8 +287,8 @@ class SensorSuite(object):
                 self.spec_counts.append(spectrum.spectrum_counts)
                 self.spec_wavelengths.append(spectrum.wavelengths)
 
-                next_call = next_call+self.spec_per
-                time.sleep(next_call - time.time())
+            next_call = next_call+self.spec_per
+            time.sleep(next_call - time.time())
 
     def save_spec_file(self,filedir):
         np.savetxt(filedir + 'spec_wavelengths.csv',

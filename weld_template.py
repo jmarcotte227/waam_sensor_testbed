@@ -28,7 +28,8 @@ if __name__ == "__main__":
     ###### EXPERIMENT DIR ######
     desc = input("Enter experiment ID: ")
     filename = desc+datetime.datetime.now().strftime("%Y%m%d-%H%M%S/")
-    os.mkdir(data_dir+filename)
+    data_dir = f"{data_dir}_{filename}"
+    os.mkdir(data_dir)
 
     device_list = []
     try:
@@ -54,8 +55,8 @@ if __name__ == "__main__":
         device_list.append(xiris)
 
         # Microphone
-        # mic_ser = RRN.ConnectService('rr+tcp://localhost:60828?service=microphone')
-        mic_ser = None
+        mic_ser = RRN.ConnectService('rr+tcp://localhost:60828?service=microphone')
+        # mic_ser = None
         # Spectrometer
         spec_ser = RRN.ConnectService('rr+tcp://localhost:60825?service=spectrometer')
         # Sensor Suite for RR sensors
@@ -74,14 +75,17 @@ if __name__ == "__main__":
         #run path with blocking
         uc.run_pathplan()
 
-        # stopping weld
-        welder.weld_off()
-        xiris.stop_recording()
-        rr_sensors.stop_all_sensors()
-        rr_sensors.save_all_sensors(data_dir+filename)
 
     except (Exception, KeyboardInterrupt) as e:
-        estop_all(device_list)
-        # print(traceback.format_exc())
-        raise e
+        # estop_all(device_list)
+        print(traceback.format_exc())
+
+    finally:
+        # stopping weld
+        welder.weld_off()
+        rr_sensors.stop_all_sensors()
+        # moving these down here since they take time
+        # stops sensors, stops xiris, saves xiris, saves sensors
+        xiris.stop_recording(data_dir)
+        rr_sensors.save_all_sensors(data_dir)
         

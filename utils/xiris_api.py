@@ -13,6 +13,10 @@ class XirisInterface():
         self.cam_key = cam_key
         self.timeout = timeout
 
+        # setup variables for time logging
+        self.start_time = 0
+        self.end_time = 0
+
         # test for connection to weld studio
         # r = requests.post(self.address+'rpc/App/Test', timeout = self.timeout)
         # print(r)
@@ -48,15 +52,23 @@ class XirisInterface():
         data = {
                 'camera': self.cam_key
                 }
+
+        # save start time
+        self.start_time = time.perf_counter()
         r = requests.post(self.address+record_cmd, json=data, timeout=self.timeout)
         print(r.text)
 
-    def stop_recording(self):
+    def stop_recording(self, filepath=None):
         stop_cmd = 'rpc/Camera/StopRecording'
         data = {
                 'camera': self.cam_key
                 }
+        self.stop_time = time.perf_counter()
         r = requests.post(self.address+stop_cmd, json=data, timeout=self.timeout)
+
+        # save csv of start and stop times
+        if filepath is not None:
+            np.savetxt(filepath+"xiris_start_stop.csv", [self.start_time, self.stop_time], delimiter=',')
 
     def e_stop(self):
         self.stop_recording()

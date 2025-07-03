@@ -276,13 +276,13 @@ class UC100Controller:
             estop_negate = eval(config['IOsetupsettings']['Estoppinnegate'])
 
             # set estop pin
-            result = self.dll.SetEstopSetting(estop_pin, estop_negate)
-            if result != 0:
-                if result == 7: 
-                    cause = ctypes.c_int()
-                    _ = self.dll.GetEstopCause(ctypes.byref(cause))
-                    print("Estop Cause: ", cause)
-                raise RuntimeError(f"Setting Estop pin failed with code {result}")
+            # result = self.dll.SetEstopSetting(estop_pin, estop_negate)
+            # if result != 0:
+            #     if result == 7: 
+            #         cause = ctypes.c_int()
+            #         _ = self.dll.GetEstopCause(ctypes.byref(cause))
+            #         print("Estop Cause: ", cause)
+            #     raise RuntimeError(f"Setting Estop pin failed with code {result}")
 
 
             self.axis_settings = {}
