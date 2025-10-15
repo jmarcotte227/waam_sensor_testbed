@@ -25,6 +25,21 @@ if __name__ == "__main__":
     ###### LOAD DATA ######
     pathplan = np.loadtxt("path_generation/paths/wall.csv", delimiter = ',')
 
+    ###### PROCESS PATHPLAN ###### 
+    jump_vel = pathplan[0,-1]
+
+    jumps = np.squeeze(np.argwhere(pathplan[:,-1]==100))
+    pathplan_split =[]
+
+    # append the first line
+    pathplan_split.append(pathplan[:jumps[1]+1,:])
+
+    for idx, _ in enumerate(jumps[1:]):
+        try:
+            pathplan_split.append(pathplan[jumps[idx+1]+1:jumps[idx+2]+1, :])
+        except IndexError:
+            pathplan_split.append(pathplan[jumps[idx+1]:, :])
+
     ###### EXPERIMENT DIR ######
     desc = input("Enter experiment ID: ")
     filename = desc+datetime.datetime.now().strftime("%Y%m%d-%H%M%S/")
@@ -62,19 +77,24 @@ if __name__ == "__main__":
         # Sensor Suite for RR sensors
         rr_sensors = SensorSuite(microphone_service = mic_ser, spec_service = spec_ser, spec_freq = 5)
 
-        ###### INITIALIZE PROCESS ######
+        ###### Jogging to zero
         uc.jog_to_zero()
-        uc.init_pathplan(pathplan)
-
-        ###### RUN PROCESS ######
         input("Enter to weld")
+
         # starting weld
         xiris.start_recording()
         rr_sensors.start_all_sensors()
-        welder.weld_on()
-        #run path with blocking
-        uc.run_pathplan()
 
+        for path in pathplan_split:
+            ###### INITIALIZE PROCESS ######
+            uc.init_pathplan(path)
+
+            ###### RUN PROCESS ######
+            welder.weld_on()
+            #run path with blocking
+            uc.run_pathplan()
+            welder.weld_off()
+            time.sleep(5)
 
     except (Exception, KeyboardInterrupt) as e:
         # estop_all(device_list)
