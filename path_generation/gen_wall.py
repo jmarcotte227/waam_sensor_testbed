@@ -3,7 +3,9 @@ import numpy as np
 # geometry parameters
 WALL_LEN =      50 # mm
 LAYER_HEIGHT =  4   # mm
-NUM_LAYERS =    1
+
+NUM_LAYERS =    3
+
 
 # velocities
 JUMP_VEL =      100 # mm/s
