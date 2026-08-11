@@ -400,7 +400,6 @@ class UC100Controller:
                  ...
                 [x, y, z, vel]]
         '''
-        self.zero_axes()
         mot_id = 0
         # send to start
         self.linear_move(plan[0,0],
