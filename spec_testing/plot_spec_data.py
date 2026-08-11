@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import matplotlib.animation as animation
 
-data_dir = '../../wst_data/_weld_100IPM20250703-140141/'
+data_dir = '../../wst_data/_test1020250806-140305/'
 wavelengths = np.loadtxt(f'{data_dir}spec_wavelengths.csv', delimiter=',', skiprows=1)[0,1:]
 counts = np.loadtxt(f'{data_dir}spec_counts.csv', delimiter=',', skiprows=1)
 
